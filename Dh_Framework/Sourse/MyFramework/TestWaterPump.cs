@@ -26,9 +26,31 @@ namespace MyFramework
             // Насос не потребляет, только производит
         }
 
+        public override void PostSpawnSetup(bool respawningAfterLoad)
+        {
+            base.PostSpawnSetup(respawningAfterLoad);
+            // Исправление бага гонки данных: регистрируем клиента в сети после спавна
+            var grid = parent.Map.GetComponent<PipeGrid>();
+            var net = grid.NetAt(parent.Position, PipeNetDef);
+            if (net != null && !net.clients.Contains(this))
+            {
+                // Используем рефлексию для добавления клиента в приватный список
+                var clientsField = typeof(PipeNet).GetField("clients", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (clientsField != null)
+                {
+                    var clients = (System.Collections.Generic.List<IPipeNetworkClient>)clientsField.GetValue(net);
+                    clients.Add(this);
+                }
+            }
+        }
+
         public override string CompInspectStringExtra()
         {
-            var grid = parent.Map.GetComponent<PipeGrid>();
+            // Исправление: проверка на null для PipeGrid
+            var grid = parent.Map?.GetComponent<PipeGrid>();
+            if (grid == null)
+                return "No grid available";
+                
             var net = grid.NetAt(parent.Position, PipeNetDef);
             if (net == null)
                 return "No network connected";
@@ -63,21 +85,44 @@ namespace MyFramework
             receivedThisTick += amount;
         }
 
+        public override void PostSpawnSetup(bool respawningAfterLoad)
+        {
+            base.PostSpawnSetup(respawningAfterLoad);
+            // Исправление бага гонки данных: регистрируем клиента в сети после спавна
+            var grid = parent.Map.GetComponent<PipeGrid>();
+            var net = grid.NetAt(parent.Position, PipeNetDef);
+            if (net != null && !net.clients.Contains(this))
+            {
+                // Используем рефлексию для добавления клиента в приватный список
+                var clientsField = typeof(PipeNet).GetField("clients", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (clientsField != null)
+                {
+                    var clients = (System.Collections.Generic.List<IPipeNetworkClient>)clientsField.GetValue(net);
+                    clients.Add(this);
+                }
+            }
+        }
+
         public override void CompTick()
         {
             base.CompTick();
             
             // Логируем для отладки
-            if (receivedThisTick > 0)
+            if (receivedThisTick > 0f)
             {
                 Log.Message($"[WaterRadiator] Получил воды: {receivedThisTick}");
-                receivedThisTick = 0;
             }
+            // Исправление бага: сбрасываем receivedThisTick ПОСЛЕ обработки, а не до
+            receivedThisTick = 0f;
         }
 
         public override string CompInspectStringExtra()
         {
-            var grid = parent.Map.GetComponent<PipeGrid>();
+            // Исправление: проверка на null для PipeGrid
+            var grid = parent.Map?.GetComponent<PipeGrid>();
+            if (grid == null)
+                return "No grid available";
+                
             var net = grid.NetAt(parent.Position, PipeNetDef);
             if (net == null)
                 return "No network connected";

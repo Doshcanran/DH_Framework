@@ -19,13 +19,21 @@ namespace MyFramework
         public override void PostSpawnSetup(bool respawningAfterLoad)
         {
             base.PostSpawnSetup(respawningAfterLoad);
-            parent.Map.GetComponent<PipeGrid>()
-                .RegisterPipe(parent.Position, Props.pipeNetDef);
+            // Исправление: проверка на null для PipeGrid
+            var grid = parent.Map?.GetComponent<PipeGrid>();
+            if (grid != null)
+            {
+                grid.RegisterPipe(parent.Position, Props.pipeNetDef);
+            }
         }
 
         public override string CompInspectStringExtra()
         {
-            var grid = parent.Map.GetComponent<PipeGrid>();
+            // Исправление: проверка на null для PipeGrid
+            var grid = parent.Map?.GetComponent<PipeGrid>();
+            if (grid == null)
+                return "No grid available";
+                
             var net = grid.NetAt(parent.Position, Props.pipeNetDef);
             if (net == null)
                 return "No network connected";

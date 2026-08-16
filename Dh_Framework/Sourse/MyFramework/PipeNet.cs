@@ -9,7 +9,7 @@ namespace MyFramework
     public class PipeNet
     {
         public readonly PipeNetDef def;
-        private readonly HashSet<int> cellIndicesInNet;
+        public readonly HashSet<int> cellIndicesInNet;  // Исправлено: сделано public для доступа из PipeGrid
         public float StoredResource;
         public float Capacity => cellIndicesInNet.Count * def.maxCapacityPerCell;
 
@@ -60,6 +60,18 @@ namespace MyFramework
         public void ExposeData()
         {
             Scribe_Values.Look(ref StoredResource, "storedResource", 0f);
+            // Сохраняем индексы клеток для корректной сериализации
+            var cellsList = cellIndicesInNet.ToList();
+            Scribe_Collections.Look(ref cellsList, "cellIndices", LookMode.Value);
+            if (Scribe.mode == LoadSaveMode.LoadingVars)
+            {
+                cellIndicesInNet.Clear();
+                if (cellsList != null)
+                {
+                    foreach (var idx in cellsList)
+                        cellIndicesInNet.Add(idx);
+                }
+            }
         }
     }
 }

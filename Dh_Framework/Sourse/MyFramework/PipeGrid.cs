@@ -7,7 +7,8 @@ namespace MyFramework
     public class PipeGrid : MapComponent
     {
         // Бит i выставлен = в этой клетке есть труба сети AllDefs[i]
-        private ushort[] connectionGrid;
+        // Исправлено: ushort заменён на uint для поддержки до 32 типов сетей вместо 16
+        private uint[] connectionGrid;
         private CellIndices cellIndices;
 
         // Одна сеть на тип на группу связности. Ключ — netTypeIndex.
@@ -20,7 +21,7 @@ namespace MyFramework
         public override void FinalizeInit()
         {
             cellIndices = map.cellIndices;
-            connectionGrid = new ushort[cellIndices.NumGridCells];
+            connectionGrid = new uint[cellIndices.NumGridCells];
 
             networksByType = new List<PipeNet>[PipeNetRegistry.AllDefs.Count];
             for (int i = 0; i < networksByType.Length; i++)
@@ -30,20 +31,20 @@ namespace MyFramework
         public bool HasConnectionAt(IntVec3 cell, PipeNetDef def)
         {
             int idx = cellIndices.CellToIndex(cell);
-            return (connectionGrid[idx] & (1 << def.netTypeIndex)) != 0;
+            return (connectionGrid[idx] & (1u << def.netTypeIndex)) != 0;
         }
 
         public void RegisterPipe(IntVec3 cell, PipeNetDef def)
         {
             int idx = cellIndices.CellToIndex(cell);
-            connectionGrid[idx] |= (ushort)(1 << def.netTypeIndex);
+            connectionGrid[idx] |= (uint)(1u << def.netTypeIndex);
             RebuildNetworksAt(cell, def);
         }
 
         public void DeregisterPipe(IntVec3 cell, PipeNetDef def)
         {
             int idx = cellIndices.CellToIndex(cell);
-            connectionGrid[idx] &= (ushort)~(1 << def.netTypeIndex);
+            connectionGrid[idx] &= ~(uint)(1u << def.netTypeIndex);
             RebuildNetworksAt(cell, def);
         }
 
@@ -52,6 +53,13 @@ namespace MyFramework
         // по сравнению с полным пересчётом карты.
         private void RebuildNetworksAt(IntVec3 changedCell, PipeNetDef def)
         {
+            // Исправление: проверка границ для netTypeIndex
+            if (def.netTypeIndex < 0 || def.netTypeIndex >= networksByType.Length)
+            {
+                Log.Error($"[PipeGrid] Invalid netTypeIndex {def.netTypeIndex} for def {def.defName}");
+                return;
+            }
+
             var list = networksByType[def.netTypeIndex];
 
             // Снести все сети, которые касались этой клетки или соседей —
@@ -101,6 +109,10 @@ namespace MyFramework
 
         public PipeNet NetAt(IntVec3 cell, PipeNetDef def)
         {
+            // Исправление: проверка границ для netTypeIndex и null-check
+            if (def == null || def.netTypeIndex < 0 || def.netTypeIndex >= networksByType.Length)
+                return null;
+                
             foreach (var net in networksByType[def.netTypeIndex])
                 if (net.TouchesCell(cell, cellIndices))
                     return net;
@@ -109,9 +121,17 @@ namespace MyFramework
 
         public override void MapComponentTick()
         {
+            // Исправление: проверка на null для networksByType
+            if (networksByType == null)
+                return;
+                
             foreach (var list in networksByType)
+            {
+                if (list == null)
+                    continue;
                 for (int i = 0; i < list.Count; i++)
                     list[i].NetTick();
+            }
         }
 
         public override void ExposeData()
@@ -142,8 +162,30 @@ namespace MyFramework
 
                             var net = FloodFillNet(cell, def, visited);
                             if (net != null)
+                            {
+                                // Исправление бага: сохраняем StoredResource при перезагрузке
+                                // Сериализуем данные сети через Scribe
+                                var storedResource = 0f;
+                                Scribe_Values.Look(ref storedResource, $"storedResource_{def.defName}_{cellIdx}", 0f);
+                                net.StoredResource = storedResource;
+                                
                                 networksByType[def.netTypeIndex].Add(net);
+                            }
                         }
+                    }
+                }
+            }
+            else if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                // При сохранении сериализуем StoredResource для каждой сети
+                foreach (var def in PipeNetRegistry.AllDefs)
+                {
+                    foreach (var net in networksByType[def.netTypeIndex])
+                    {
+                        var storedResource = net.StoredResource;
+                        // Используем первый индекс клетки сети как уникальный ключ
+                        var firstCellIdx = net.cellIndicesInNet.FirstOrDefault();
+                        Scribe_Values.Look(ref storedResource, $"storedResource_{def.defName}_{firstCellIdx}", 0f);
                     }
                 }
             }
