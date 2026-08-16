@@ -1,0 +1,9 @@
+f:\proj\Dh_Framework\Sourse\MyFramework\obj\Debug\DHFR.csproj.AssemblyReference.cache
+f:\proj\Dh_Framework\Sourse\MyFramework\obj\Debug\DHFR.GeneratedMSBuildEditorConfig.editorconfig
+f:\proj\Dh_Framework\Sourse\MyFramework\obj\Debug\DHFR.AssemblyInfoInputs.cache
+f:\proj\Dh_Framework\Sourse\MyFramework\obj\Debug\DHFR.AssemblyInfo.cs
+f:\proj\Dh_Framework\Sourse\MyFramework\obj\Debug\DHFR.csproj.CoreCompileInputs.cache
+F:\proj\Dh_Framework\Assemblies\MyFramework.dll
+F:\proj\Dh_Framework\Assemblies\MyFramework.pdb
+F:\proj\Dh_Framework\Sourse\MyFramework\obj\Debug\MyFramework.dll
+F:\proj\Dh_Framework\Sourse\MyFramework\obj\Debug\MyFramework.pdb

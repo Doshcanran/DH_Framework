@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <MyFramework.PipeNetDef>
+    <defName>Water</defName>
+    <label>water</label>
+    <maxCapacityPerCell>100</maxCapacityPerCell>
+  </MyFramework.PipeNetDef>
+
+  <MyFramework.PipeNetDef>
+    <defName>Gas</defName>
+    <label>gas</label>
+    <maxCapacityPerCell>50</maxCapacityPerCell>
+  </MyFramework.PipeNetDef>
+</Defs>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- Водяная труба -->
+  <ThingDef>
+    <defName>WaterPipe</defName>
+    <label>water pipe</label>
+    <description>Трубопровод для транспортировки воды.</description>
+    <thingClass>Verse.Building</thingClass>
+    <category>Building</category>
+    <designationCategory>Misc</designationCategory>
+    <graphicData>
+      <texPath>Things/Building/WaterPipe</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1, 1)</drawSize>
+    </graphicData>
+    <rotatable>false</rotatable>
+    <altitudeLayer>Building</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <statBases>
+      <MaxHitPoints>100</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <Beauty>-5</Beauty>
+    </statBases>
+    <costList>
+      <Steel>5</Steel>
+    </costList>
+    <comps>
+      <li Class="MyFramework.CompProperties_Pipe">
+        <pipeNetDef>Water</pipeNetDef>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- Водяной насос (производитель) -->
+  <ThingDef>
+    <defName>WaterPump</defName>
+    <label>water pump</label>
+    <description>Насос для подачи воды в сеть трубопроводов.</description>
+    <thingClass>Verse.Building</thingClass>
+    <category>Building</category>
+    <designationCategory>Production</designationCategory>
+    <graphicData>
+      <texPath>Things/Building/WaterPump</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(2, 2)</drawSize>
+    </graphicData>
+    <altitudeLayer>Building</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <rotatable>false</rotatable>
+    <statBases>
+      <MaxHitPoints>150</MaxHitPoints>
+      <Flammability>0.5</Flammability>
+      <Beauty>-8</Beauty>
+    </statBases>
+    <costList>
+      <Steel>15</Steel>
+      <Plasteel>5</Plasteel>
+    </costList>
+    <comps>
+      <li Class="MyFramework.CompProperties_Pipe">
+        <pipeNetDef>Water</pipeNetDef>
+      </li>
+      <li Class="MyFramework.CompProperties_WaterPump">
+        <outputPerTick>15</outputPerTick>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- Водяной радиатор (потребитель) -->
+  <ThingDef>
+    <defName>WaterRadiator</defName>
+    <label>water radiator</label>
+    <description>Радиатор охлаждения, потребляет воду из сети трубопроводов.</description>
+    <thingClass>Verse.Building</thingClass>
+    <category>Building</category>
+    <designationCategory>Temperature</designationCategory>
+    <graphicData>
+      <texPath>Things/Building/WaterRadiator</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1, 2)</drawSize>
+    </graphicData>
+    <altitudeLayer>Building</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <rotatable>true</rotatable>
+    <statBases>
+      <MaxHitPoints>100</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <Beauty>-6</Beauty>
+    </statBases>
+    <costList>
+      <Steel>20</Steel>
+      <Silver>5</Silver>
+    </costList>
+    <comps>
+      <li Class="MyFramework.CompProperties_Pipe">
+        <pipeNetDef>Water</pipeNetDef>
+      </li>
+      <li Class="MyFramework.CompProperties_WaterRadiator">
+        <consumptionPerTick>10</consumptionPerTick>
+      </li>
+    </comps>
+  </ThingDef>
+
+</Defs>
