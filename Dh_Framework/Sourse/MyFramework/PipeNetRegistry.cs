@@ -15,8 +15,9 @@ namespace MyFramework
                 .OrderBy(d => d.defName)
                 .ToList();
 
-            if (AllDefs.Count > 16)
-                Log.Error("[MyFramework] Больше 16 типов PipeNet — connectionGrid как ushort переполнится. Переходи на uint/ulong.");
+            // Исправление: увеличено ограничение с 16 до 32 типов сетей (uint вместо ushort)
+            if (AllDefs.Count > 32)
+                Log.Error($"[MyFramework] Больше {AllDefs.Count} типов PipeNet — возможно переполнение uint. Рассмотрите переход на ulong.");
 
             for (int i = 0; i < AllDefs.Count; i++)
                 AllDefs[i].netTypeIndex = i;
